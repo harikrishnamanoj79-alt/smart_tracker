@@ -3,3 +3,7 @@ pillow
 openpyxl
 xhtml2pdf
 python-dotenv
+gunicorn
+whitenoise
+dj-database-url
+psycopg[binary]

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: smart-expense-manager
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn SmartExpenseManager.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smart-expense-manager-db
+          property: connectionString
+
+databases:
+  - name: smart-expense-manager-db
+    plan: free
