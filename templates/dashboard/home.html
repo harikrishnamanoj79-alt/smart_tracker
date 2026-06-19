@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<!-- Widgets Row -->
+<div class="row mb-4">
+    <!-- Total Income -->
+    <div class="col-6 col-lg-2.4 col-md-4 mb-3">
+        <div class="card stat-card p-3 h-100 d-flex flex-row align-items-center gap-3">
+            <div class="stat-icon text-success" style="background-color: rgba(16, 185, 129, 0.1);">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div>
+                <small class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.75rem;">Total Income</small>
+                <h5 class="fw-bold m-0 text-success">+{{ total_income }}</h5>
+            </div>
+        </div>
+    </div>
+    <!-- Total Expense -->
+    <div class="col-6 col-lg-2.4 col-md-4 mb-3">
+        <div class="card stat-card p-3 h-100 d-flex flex-row align-items-center gap-3">
+            <div class="stat-icon text-danger" style="background-color: rgba(239, 68, 68, 0.1);">
+                <i class="bi bi-graph-down-arrow"></i>
+            </div>
+            <div>
+                <small class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.75rem;">Total Expense</small>
+                <h5 class="fw-bold m-0 text-danger">-{{ total_expense }}</h5>
+            </div>
+        </div>
+    </div>
+    <!-- Balance -->
+    <div class="col-6 col-lg-2.4 col-md-4 mb-3">
+        <div class="card stat-card p-3 h-100 d-flex flex-row align-items-center gap-3">
+            <div class="stat-icon text-primary" style="background-color: rgba(37, 99, 235, 0.1);">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div>
+                <small class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.75rem;">Current Balance</small>
+                <h5 class="fw-bold m-0 text-primary">{{ current_balance }}</h5>
+            </div>
+        </div>
+    </div>
+    <!-- Savings -->
+    <div class="col-6 col-lg-2.4 col-md-4 mb-3">
+        <div class="card stat-card p-3 h-100 d-flex flex-row align-items-center gap-3">
+            <div class="stat-icon text-info" style="background-color: rgba(6, 182, 212, 0.1);">
+                <i class="bi bi-piggy-bank"></i>
+            </div>
+            <div>
+                <small class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.75rem;">Total Saved</small>
+                <h5 class="fw-bold m-0 text-info">{{ savings_amount }}</h5>
+            </div>
+        </div>
+    </div>
+    <!-- Active Loans -->
+    <div class="col-12 col-lg-2.4 col-md-4 mb-3">
+        <div class="card stat-card p-3 h-100 d-flex flex-row align-items-center gap-3">
+            <div class="stat-icon text-warning" style="background-color: rgba(245, 158, 11, 0.1);">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div>
+                <small class="text-muted text-uppercase fw-semibold d-block" style="font-size: 0.75rem;">Active Loans</small>
+                <h5 class="fw-bold m-0 text-warning">{{ active_loans }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Budget Usage -->
+<div class="card stat-card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold text-secondary m-0">Monthly Budget Usage</h5>
+        <span class="fw-bold text-secondary">{{ budget_usage_percentage }}% (Spent {{ total_budget_spent }} of {{ total_budget_limit }})</span>
+    </div>
+    <div class="progress" style="height: 12px; border-radius: 6px;">
+        <div class="progress-bar {% if budget_usage_percentage >= 90 %}bg-danger{% elif budget_usage_percentage >= 75 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ budget_usage_percentage }}%" aria-valuenow="{{ budget_usage_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row mb-4">
+    <!-- Income vs Expense Line Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card stat-card p-4">
+            <h5 class="fw-bold text-secondary mb-3">Income vs Expense Trend</h5>
+            <div style="height: 300px; position: relative;">
+                <canvas id="incomeExpenseChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Expense Category Breakdown Pie -->
+    <div class="col-lg-4 mb-4">
+        <div class="card stat-card p-4">
+            <h5 class="fw-bold text-secondary mb-3">Expenses by Category (Current Month)</h5>
+            <div style="height: 300px; position: relative;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="row mb-4">
+    <!-- Daily Spending Bar Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card stat-card p-4">
+            <h5 class="fw-bold text-secondary mb-3">Daily Spending (Last 30 Days)</h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="spendingTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Savings Goals Stacked -->
+    <div class="col-lg-6 mb-4">
+        <div class="card stat-card p-4">
+            <h5 class="fw-bold text-secondary mb-3">Savings Goals Targets vs Saved</h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="savingsGoalChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transactions and Recurrings Row -->
+<div class="row">
+    <!-- Recent Transactions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card stat-card p-4 h-100">
+            <h5 class="fw-bold text-secondary mb-3">Recent Transactions</h5>
+            <div class="table-responsive border-0 p-0">
+                <table class="table table-hover align-middle m-0">
+                    <tbody>
+                        {% if transactions %}
+                            {% for tx in transactions %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">{{ tx.title }}</div>
+                                    <small class="text-muted">{{ tx.category }}</small>
+                                </td>
+                                <td class="text-muted">{{ tx.date|date:"Y-m-d" }}</td>
+                                <td class="text-end fw-bold text-{{ tx.class }}">
+                                    {% if tx.type == 'Income' %}+{% else %}-{% endif %}{{ tx.amount }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">No recent transactions.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recurring Transactions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card stat-card p-4 h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-secondary m-0">Recurring Transactions</h5>
+                <a href="{% url 'dashboard:recurring_add' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus"></i> Add</a>
+            </div>
+            <div class="table-responsive border-0 p-0 flex-grow-1">
+                <table class="table table-hover align-middle m-0">
+                    <thead>
+                        <tr class="small text-muted text-uppercase">
+                            <th>Title</th>
+                            <th>Frequency</th>
+                            <th>Next Date</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recurring_txs %}
+                            {% for r in recurring_txs %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-truncate" style="max-width: 120px;">{{ r.title }}</div>
+                                    <span class="badge bg-{% if r.type == 'Income' %}success{% else %}danger{% endif %} text-white" style="font-size: 0.65rem;">{{ r.type }}</span>
+                                </td>
+                                <td>{{ r.frequency }}</td>
+                                <td>{{ r.next_date|date:"Y-m-d" }}</td>
+                                <td class="text-end fw-bold text-{% if r.type == 'Income' %}success{% else %}danger{% endif %}">{{ r.amount }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="{% url 'dashboard:recurring_edit' r.id %}" class="btn btn-sm btn-light border p-1 py-0" title="Edit"><i class="bi bi-pencil" style="font-size: 0.75rem;"></i></a>
+                                        <a href="{% url 'dashboard:recurring_delete' r.id %}" class="btn btn-sm btn-light border text-danger p-1 py-0" title="Delete"><i class="bi bi-trash" style="font-size: 0.75rem;"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No active recurring transactions.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $.getJSON("{% url 'dashboard:chart_data' %}", function(data) {
+        
+        // 1. Income vs Expense Trend Chart (Line Chart)
+        const ctx1 = document.getElementById('incomeExpenseChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: data.months_labels,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: data.income_data,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Expense',
+                        data: data.expense_data,
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 2. Category Breakdown Chart (Pie Chart)
+        const ctx2 = document.getElementById('categoryChart').getContext('2d');
+        if(data.cat_data.length > 0) {
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: data.cat_labels,
+                    datasets: [{
+                        data: data.cat_data,
+                        backgroundColor: [
+                            '#2563EB', '#F59E0B', '#EF4444', '#10B981', '#06B6D4',
+                            '#8B5CF6', '#EC4899', '#64748B', '#1E293B', '#14B8A6'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Render an empty chart message or placeholder
+            ctx2.font = '14px Arial';
+            ctx2.fillText('No expenses logged for this month.', 10, 100);
+        }
+
+        // 3. Daily Spending Trend (Bar Chart)
+        const ctx3 = document.getElementById('spendingTrendChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: data.days_labels,
+                datasets: [{
+                    label: 'Spent Amount',
+                    data: data.days_spending,
+                    backgroundColor: 'rgba(37, 99, 235, 0.7)',
+                    borderColor: '#2563EB',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 4. Savings Progress Goals Chart (Double Bar Chart)
+        const ctx4 = document.getElementById('savingsGoalChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: data.savings_labels,
+                datasets: [
+                    {
+                        label: 'Target',
+                        data: data.savings_targets,
+                        backgroundColor: 'rgba(148, 163, 184, 0.4)',
+                        borderColor: '#94A3B8',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Saved',
+                        data: data.savings_saved,
+                        backgroundColor: '#10B981',
+                        borderColor: '#10B981',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Loans - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Loans Tracking</h3>
+        <small class="text-muted">Manage debts and loan repayment progress</small>
+    </div>
+    <a href="{% url 'loans:loan_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Add Loan</a>
+</div>
+
+<div class="row">
+    {% if loans %}
+        {% for loan in loans %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card stat-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold text-secondary mb-1">{{ loan.loan_name }}</h5>
+                        <span class="badge bg-{% if loan.status == 'Fully Paid' %}success{% elif loan.status == 'Overdue' %}danger{% else %}warning{% endif %} text-white fw-semibold">
+                            {{ loan.status }}
+                        </span>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'loans:loan_edit' loan.id %}" class="btn btn-sm btn-light border p-1 px-2"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'loans:loan_delete' loan.id %}" class="btn btn-sm btn-light border text-danger p-1 px-2"><i class="bi bi-trash"></i></a>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Due Date:</span>
+                        <span class="fw-semibold small">{{ loan.due_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Total Loan:</span>
+                        <span class="fw-semibold text-danger small">{{ loan.total_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Paid:</span>
+                        <span class="fw-semibold text-success small">{{ loan.paid_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Remaining:</span>
+                        <span class="fw-semibold text-dark small">{{ loan.remaining_amount }}</span>
+                    </div>
+                </div>
+
+                {% if loan.status != 'Fully Paid' %}
+                <form method="post" action="{% url 'loans:loan_repay' loan.id %}" class="mt-auto pt-3 border-top">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="number" name="amount" step="0.01" min="0.01" max="{{ loan.remaining_amount }}" class="form-control" placeholder="Repayment amount..." required>
+                        <button class="btn btn-outline-success" type="submit"><i class="bi bi-cash-coin"></i></button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card stat-card p-5">
+                <i class="bi bi-cash-stack text-muted display-4 mb-3"></i>
+                <h4 class="fw-bold text-secondary">No loans registered</h4>
+                <p class="text-muted">Register details of any borrowed/lent funds to monitor paybacks.</p>
+                <a href="{% url 'loans:loan_add' %}" class="btn btn-primary mt-2 mx-auto" style="max-width: 200px;">Add First Loan</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

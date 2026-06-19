@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2563EB;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .summary-box {
+            background-color: #F3F4F6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .summary-table {
+            width: 100%;
+        }
+        .summary-table td {
+            padding: 5px;
+            font-size: 14px;
+        }
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        table.data-table th, table.data-table td {
+            border: 1px solid #E5E7EB;
+            padding: 8px;
+            font-size: 12px;
+            text-align: left;
+        }
+        table.data-table th {
+            background-color: #F9FAFB;
+            font-weight: bold;
+        }
+        .text-success { color: #10B981; }
+        .text-danger { color: #EF4444; }
+        .text-right { text-align: right; }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1E293B;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>SmartExpenseManager Financial Statement</h2>
+        <p>Generated for <strong>{{ user.username }}</strong> on {{ date|date:"Y-m-d" }}</p>
+    </div>
+
+    <div class="summary-box">
+        <div class="section-title">Summary Metrics</div>
+        <table class="summary-table">
+            <tr>
+                <td><strong>Total Income:</strong> <span class="text-success">+{{ total_income }}</span></td>
+                <td><strong>Total Expenses:</strong> <span class="text-danger">-{{ total_expense }}</span></td>
+                <td><strong>Net Balance:</strong> <strong>{{ balance }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section-title">Income History</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Category</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inc in incomes %}
+            <tr>
+                <td>{{ inc.date|date:"Y-m-d" }}</td>
+                <td>{{ inc.source }}</td>
+                <td>{{ inc.category.name }}</td>
+                <td class="text-right text-success">+{{ inc.amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No income entries recorded.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="section-title">Expense History</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exp in expenses %}
+            <tr>
+                <td>{{ exp.date|date:"Y-m-d" }}</td>
+                <td>{{ exp.category.name }}</td>
+                <td>{{ exp.description|default:"-" }}</td>
+                <td class="text-right text-danger">-{{ exp.amount }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No expense entries recorded.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

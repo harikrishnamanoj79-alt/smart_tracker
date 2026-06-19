@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Methods - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Payment Methods</h3>
+        <small class="text-muted">Manage methods like Cash, Credit Card, etc.</small>
+    </div>
+    <a href="{% url 'expenses:payment_method_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Add Method</a>
+</div>
+
+<div class="card table-card">
+    <div class="table-responsive border-0 p-0">
+        <table class="table table-hover align-middle datatable w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pm in payment_methods %}
+                <tr>
+                    <td class="fw-semibold">{{ pm.name }}</td>
+                    <td>{{ pm.description|default:"-" }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{% url 'expenses:payment_method_edit' pm.id %}" class="btn btn-sm btn-light border" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'expenses:payment_method_delete' pm.id %}" class="btn btn-sm btn-light border text-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

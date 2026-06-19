@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Loan{% else %}Add Loan{% endif %} - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card stat-card p-4">
+            <h4 class="fw-bold text-secondary mb-4">{% if form.instance.pk %}Edit Loan Details{% else %}Add New Loan{% endif %}</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_loan_name" class="form-label fw-semibold">Loan Name</label>
+                    {{ form.loan_name }}
+                    {% if form.loan_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.loan_name.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_total_amount" class="form-label fw-semibold">Total Amount</label>
+                        {{ form.total_amount }}
+                        {% if form.total_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.total_amount.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_paid_amount" class="form-label fw-semibold">Paid Amount</label>
+                        {{ form.paid_amount }}
+                        {% if form.paid_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.paid_amount.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_due_date" class="form-label fw-semibold">Due Date</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.due_date.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="id_status" class="form-label fw-semibold">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">Save Loan</button>
+                    <a href="{% url 'loans:loan_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

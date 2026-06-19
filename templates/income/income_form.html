@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Income{% else %}Add Income{% endif %} - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card stat-card p-4">
+            <h4 class="fw-bold text-secondary mb-4">{% if form.instance.pk %}Edit Income{% else %}Add New Income{% endif %}</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_category" class="form-label fw-semibold">Category</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="text-danger small mt-1">{{ form.category.errors|join:", " }}</div>
+                    {% endif %}
+                    <div class="form-text">Don't see your category? <a href="{% url 'expenses:category_add' %}" class="text-primary text-decoration-none">Add Category</a></div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_amount" class="form-label fw-semibold">Amount</label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}
+                        <div class="text-danger small mt-1">{{ form.amount.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_source" class="form-label fw-semibold">Source</label>
+                    {{ form.source }}
+                    {% if form.source.errors %}
+                        <div class="text-danger small mt-1">{{ form.source.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_date" class="form-label fw-semibold">Date</label>
+                    {{ form.date }}
+                    {% if form.date.errors %}
+                        <div class="text-danger small mt-1">{{ form.date.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_payment_method" class="form-label fw-semibold">Payment Method</label>
+                    {{ form.payment_method }}
+                    {% if form.payment_method.errors %}
+                        <div class="text-danger small mt-1">{{ form.payment_method.errors|join:", " }}</div>
+                    {% endif %}
+                    <div class="form-text">Don't see your payment method? <a href="{% url 'expenses:payment_method_add' %}" class="text-primary text-decoration-none">Add Payment Method</a></div>
+                </div>
+                <div class="mb-4">
+                    <label for="id_description" class="form-label fw-semibold">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">Save Income</button>
+                    <a href="{% url 'income:income_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

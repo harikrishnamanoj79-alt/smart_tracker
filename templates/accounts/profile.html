@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 col-md-4 text-center mb-4">
+        <div class="card stat-card p-4 h-100">
+            <div class="mb-3">
+                {% if request.user.profile_image %}
+                <img src="{{ request.user.profile_image.url }}" class="avatar-lg" alt="Avatar">
+                {% else %}
+                <div class="avatar-lg bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-1 mx-auto">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+            </div>
+            <h4 class="fw-bold mb-1">{{ request.user.username }}</h4>
+            <p class="text-muted mb-3">{{ request.user.email }}</p>
+            <div class="text-muted small">Member since {{ request.user.created_at|date:"F Y" }}</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-8">
+        <div class="card stat-card p-4 h-100">
+            <h4 class="fw-bold text-secondary mb-4">Update Profile Details</h4>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_name" class="form-label fw-semibold">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_last_name" class="form-label fw-semibold">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_email" class="form-label fw-semibold">Email Address</label>
+                    {{ form.email }}
+                </div>
+                <div class="mb-4">
+                    <label for="id_profile_image" class="form-label fw-semibold">Profile Image</label>
+                    {{ form.profile_image }}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-secondary">Change Password</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

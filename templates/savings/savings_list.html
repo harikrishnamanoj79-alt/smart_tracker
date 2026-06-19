@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Savings Goals - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Savings Goals</h3>
+        <small class="text-muted">Track and fulfill your savings targets</small>
+    </div>
+    <a href="{% url 'savings:savings_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Goal</a>
+</div>
+
+<div class="row">
+    {% if goals %}
+        {% for goal in goals %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card stat-card p-4 h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold text-secondary mb-1">{{ goal.title }}</h5>
+                        <span class="badge bg-{% if goal.status == 'Achieved' %}success{% elif goal.status == 'Failed' %}danger{% else %}primary{% endif %} text-white fw-semibold">
+                            {{ goal.status }}
+                        </span>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'savings:savings_edit' goal.id %}" class="btn btn-sm btn-light border p-1 px-2"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'savings:savings_delete' goal.id %}" class="btn btn-sm btn-light border text-danger p-1 px-2"><i class="bi bi-trash"></i></a>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Target Date:</span>
+                        <span class="fw-semibold small">{{ goal.target_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Target Amount:</span>
+                        <span class="fw-semibold text-primary small">{{ goal.target_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Saved:</span>
+                        <span class="fw-semibold text-success small">{{ goal.saved_amount }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2 small fw-medium text-muted">
+                        <span>Progress</span>
+                        <span>{{ goal.progress_percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 4px;">
+                        <div class="progress-bar bg-{% if goal.status == 'Achieved' %}success{% else %}primary{% endif %}" role="progressbar" style="width: {{ goal.progress_percentage }}%" aria-valuenow="{{ goal.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                {% if goal.status != 'Achieved' %}
+                <form method="post" action="{% url 'savings:savings_deposit' goal.id %}" class="mt-auto pt-3 border-top">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="number" name="amount" step="0.01" min="0.01" class="form-control" placeholder="Deposit amount..." required>
+                        <button class="btn btn-outline-success" type="submit"><i class="bi bi-piggy-bank-fill"></i></button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card stat-card p-5">
+                <i class="bi bi-piggy-bank text-muted display-4 mb-3"></i>
+                <h4 class="fw-bold text-secondary">No savings goals created</h4>
+                <p class="text-muted">Define financial milestones and save regularly to achieve them.</p>
+                <a href="{% url 'savings:savings_add' %}" class="btn btn-primary mt-2 mx-auto" style="max-width: 200px;">Create First Goal</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

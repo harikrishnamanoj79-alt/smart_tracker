@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Budgets - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Monthly Budgets</h3>
+        <small class="text-muted">Monitor and control your category limits</small>
+    </div>
+    <a href="{% url 'budgets:budget_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Set Budget</a>
+</div>
+
+<div class="row">
+    {% if budget_data %}
+        {% for data in budget_data %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card stat-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold text-secondary mb-1">{{ data.budget.category.name }}</h5>
+                        <span class="badge bg-light text-muted fw-semibold">{{ data.month_name }} {{ data.budget.year }}</span>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'budgets:budget_edit' data.budget.id %}" class="btn btn-sm btn-light border p-1 px-2"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'budgets:budget_delete' data.budget.id %}" class="btn btn-sm btn-light border text-danger p-1 px-2"><i class="bi bi-trash"></i></a>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Limit:</span>
+                        <span class="fw-semibold small">{{ data.budget.monthly_limit }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted small">Spent:</span>
+                        <span class="fw-semibold text-danger small">-{{ data.total_spent }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small">Remaining:</span>
+                        <span class="fw-semibold text-{% if data.remaining >= 0 %}success{% else %}danger{% endif %} small">
+                            {{ data.remaining }}
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="d-flex justify-content-between mb-2 small fw-medium text-muted">
+                        <span>Usage</span>
+                        <span>{{ data.percentage }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; border-radius: 4px;">
+                        <div class="progress-bar bg-{{ data.status_class }}" role="progressbar" style="width: {{ data.percentage }}%" aria-valuenow="{{ data.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="card stat-card p-5">
+                <i class="bi bi-pie-chart text-muted display-4 mb-3"></i>
+                <h4 class="fw-bold text-secondary">No budgets set</h4>
+                <p class="text-muted">Define monthly spending limits for categories to stay on track.</p>
+                <a href="{% url 'budgets:budget_add' %}" class="btn btn-primary mt-2 mx-auto" style="max-width: 200px;">Set First Budget</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

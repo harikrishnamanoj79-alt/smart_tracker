@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Savings Goal{% else %}Create Savings Goal{% endif %} - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card stat-card p-4">
+            <h4 class="fw-bold text-secondary mb-4">{% if form.instance.pk %}Edit Savings Goal{% else %}Create New Savings Goal{% endif %}</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_title" class="form-label fw-semibold">Goal Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger small mt-1">{{ form.title.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_target_amount" class="form-label fw-semibold">Target Amount</label>
+                        {{ form.target_amount }}
+                        {% if form.target_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.target_amount.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="id_saved_amount" class="form-label fw-semibold">Saved Amount</label>
+                        {{ form.saved_amount }}
+                        {% if form.saved_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.saved_amount.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_target_date" class="form-label fw-semibold">Target Date</label>
+                        {{ form.target_date }}
+                        {% if form.target_date.errors %}
+                            <div class="text-danger small mt-1">{{ form.target_date.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="id_status" class="form-label fw-semibold">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors|join:", " }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" class="btn btn-primary">Save Goal</button>
+                    <a href="{% url 'savings:savings_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Financial Reports & Statements</h3>
+        <small class="text-muted">Analyze your cash flow and exports records</small>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download me-2"></i>Export Statement
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px;">
+            <li><a class="dropdown-item" href="{% url 'reports:export_pdf' %}" target="_blank"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Download PDF</a></li>
+            <li><a class="dropdown-item" href="{% url 'reports:export_excel' %}"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Download Excel</a></li>
+            <li><a class="dropdown-item" href="{% url 'reports:export_csv' %}"><i class="bi bi-file-earmark-font me-2 text-primary"></i>Download CSV</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Daily Report Section -->
+    <div class="col-lg-4 mb-4">
+        <div class="card stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-secondary m-0">Daily Summary</h5>
+                <form method="get" class="d-flex gap-1" id="daily-form">
+                    <input type="date" name="daily_date" class="form-control form-control-sm bg-light" value="{{ daily_date }}" onchange="this.form.submit()">
+                </form>
+            </div>
+            
+            <div class="py-2">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Income:</span>
+                    <span class="fw-bold text-success">+{{ daily_income }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Expense:</span>
+                    <span class="fw-bold text-danger">-{{ daily_expense }}</span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">Net Flow:</span>
+                    <span class="fw-bold text-{% if daily_balance >= 0 %}success{% else %}danger{% endif %}">{{ daily_balance }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Report Section -->
+    <div class="col-lg-8 mb-4">
+        <div class="card stat-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-secondary m-0">Monthly Breakdown</h5>
+                <form method="get" class="d-flex gap-2">
+                    <select name="monthly_month" class="form-select form-select-sm bg-light" onchange="this.form.submit()">
+                        {% for m_num, m_name in months %}
+                        <option value="{{ m_num }}" {% if m_num == selected_month %}selected{% endif %}>{{ m_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="monthly_year" class="form-select form-select-sm bg-light" onchange="this.form.submit()">
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6 mb-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <small class="text-muted d-block mb-1">Total Income</small>
+                        <span class="fw-bold text-success fs-5">+{{ monthly_income_sum }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <div class="p-3 bg-light rounded-3">
+                        <small class="text-muted d-block mb-1">Total Expenses</small>
+                        <span class="fw-bold text-danger fs-5">-{{ monthly_expense_sum }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold text-muted mb-2">Category-wise Expenditure</h6>
+            <div class="row">
+                {% if category_expenses %}
+                    {% for cat in category_expenses %}
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-secondary fw-medium">{{ cat.category }}</span>
+                            <span class="fw-bold text-danger">{{ cat.amount }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center text-muted small py-3">No expenses recorded for this month.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Yearly Report Section -->
+    <div class="col-12 mb-4">
+        <div class="card stat-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-secondary m-0">Yearly Statement & Budget Analysis</h5>
+                <form method="get" class="d-flex gap-2">
+                    <select name="yearly_year" class="form-select form-select-sm bg-light" onchange="this.form.submit()">
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if y == selected_yearly_year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="row text-center mb-4">
+                <div class="col-md-4 mb-2">
+                    <h6 class="text-muted small">Yearly Income</h6>
+                    <h4 class="fw-bold text-success">+{{ yearly_income }}</h4>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <h6 class="text-muted small">Yearly Expenses</h6>
+                    <h4 class="fw-bold text-danger">-{{ yearly_expense }}</h4>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <h6 class="text-muted small">Yearly Net Flow</h6>
+                    <h4 class="fw-bold text-{% if yearly_balance >= 0 %}success{% else %}danger{% endif %}">{{ yearly_balance }}</h4>
+                </div>
+            </div>
+
+            <h6 class="fw-bold text-secondary mb-3">Budget Utilization Details</h6>
+            <div class="table-responsive border-0 p-0">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Month</th>
+                            <th class="text-end">Budget Limit</th>
+                            <th class="text-end">Spent Amount</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if budget_analysis %}
+                            {% for b in budget_analysis %}
+                            <tr>
+                                <td class="fw-medium">{{ b.category }}</td>
+                                <td>{{ b.month }}</td>
+                                <td class="text-end">{{ b.limit }}</td>
+                                <td class="text-end text-danger">{{ b.spent }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-{% if b.status == 'Exceeded' %}danger{% else %}success{% endif %} text-white">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No budgets logged for this year.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

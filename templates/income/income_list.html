@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Income - SmartExpenseManager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-secondary m-0">Income Entries</h3>
+        <small class="text-muted">Track all incoming revenues</small>
+    </div>
+    <a href="{% url 'income:income_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Add Income</a>
+</div>
+
+<!-- Filters Card -->
+<div class="card stat-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Category</label>
+            <select name="category" class="form-select bg-light">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">Start Date</label>
+            <input type="date" name="start_date" class="form-control bg-light" value="{{ start_date }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold text-muted">End Date</label>
+            <input type="date" name="end_date" class="form-control bg-light" value="{{ end_date }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold text-muted">Search Source/Desc</label>
+            <input type="text" name="search" class="form-control bg-light" placeholder="Keyword..." value="{{ search_query }}">
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-filter"></i></button>
+        </div>
+    </form>
+</div>
+
+<!-- Income Table -->
+<div class="card table-card">
+    <div class="table-responsive border-0 p-0">
+        <table class="table table-hover align-middle datatable w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Source</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Payment Method</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inc in incomes %}
+                <tr>
+                    <td>{{ inc.date|date:"Y-m-d" }}</td>
+                    <td class="fw-semibold">{{ inc.source }}</td>
+                    <td><span class="badge badge-income rounded-pill px-2.5 py-1.5 fw-medium">{{ inc.category.name }}</span></td>
+                    <td>{{ inc.description|default:"-" }}</td>
+                    <td>{{ inc.payment_method.name|default:"-" }}</td>
+                    <td class="text-end fw-semibold text-success">+{{ inc.amount }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{% url 'income:income_edit' inc.id %}" class="btn btn-sm btn-light border" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'income:income_delete' inc.id %}" class="btn btn-sm btn-light border text-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
